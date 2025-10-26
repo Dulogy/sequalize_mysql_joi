@@ -1,12 +1,17 @@
 import express from "express";
-import dbconnection from "./config/mysql.db.js";
+import { dbconnection, sequelize } from "./config/mysql.db.js";
+import router from "./routes/index.js";
 const app = express();
 
+app.use("/",router);
 const port = 3000;
-app.listen(port,(err) => {
+
+app.listen(port,async (err) => {
   if(err){
     console.log("error");
   }
   console.log("server is running at port",port);
-  dbconnection();
+  await dbconnection();
+  await sequelize.sync();
 })
+
