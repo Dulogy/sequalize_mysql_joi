@@ -1,10 +1,11 @@
+import 'dotenv/config'
 import express from "express";
 import { dbconnection, sequelize } from "./config/mysql.db.js";
 import router from "./routes/index.js";
 const app = express();
 
 app.use("/",router);
-const port = 3000;
+const port = process.env.PORT;
 
 app.listen(port,async (err) => {
   if(err){
