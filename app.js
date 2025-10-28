@@ -3,8 +3,11 @@ import express from "express";
 import { dbconnection, sequelize } from "./config/mysql.db.js";
 import router from "./routes/index.js";
 const app = express();
+app.use(express.json());
 
-app.use("/",router);
+// Optional: Parse URL-encoded data (for forms)
+app.use(express.urlencoded({ extended: true }));
+app.use("/api",router);
 const port = process.env.PORT;
 
 app.listen(port,async (err) => {

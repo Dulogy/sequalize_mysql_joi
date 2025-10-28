@@ -3,6 +3,16 @@ import { sequelize } from "../config/mysql.db.js";
 
 const User = sequelize.define('User',{
     // Model attributes are defined here
+    id : {
+      type : DataTypes.INTEGER,
+      primaryKey : true,
+      autoIncrement : true
+    },
+    role : {
+      type : DataTypes.STRING,
+      allowNull : false,
+      defaultValue : "USER"
+    },
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
