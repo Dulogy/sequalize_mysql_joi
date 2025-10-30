@@ -152,6 +152,9 @@ class UserController {
     }
   }
 
+  async multiplePostCreation(req,res) {
+    
+  }
   async createComment(req, res) {
     try {
       const { postId, comment } = req.body;
