@@ -18,6 +18,9 @@ const Post = sequelize.define("Post", {
   content: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  imagePath : {
+    type : DataTypes.STRING
   }
 }, {
   tableName: "posts",

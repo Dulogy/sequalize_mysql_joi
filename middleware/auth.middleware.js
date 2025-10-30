@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import User from "../model/user.model.js";
 class Authentication {
   async auth(req, res, next) {
     try {
@@ -22,13 +23,20 @@ class Authentication {
 
       // Verify token
       const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-      if (!decodedToken) {
+      if (!decodedToken?.id) {
         return res.status(401).json({
           status: false,
-          message: "Invalid token",
+          message: "Invalid / malformed token",
         });
       }
-
+      // 4. Fetch user from DB
+      const user = await User.findOne({ where: { id: decodedToken.id } });
+      if (!user) {
+        return res.status(401).json({
+          status: false,
+          message: "User not found or deleted",
+        });
+      }
       // Attach user info to request
       req.user = decodedToken;
       next();

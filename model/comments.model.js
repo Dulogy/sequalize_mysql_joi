@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../config/mysql.db";
+import { sequelize } from "../config/mysql.db.js";
 
 const Comment = sequelize.define("Comment",{
   id : {

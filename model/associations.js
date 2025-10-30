@@ -1,40 +1,34 @@
-import RoleMaster from "./role.model.js";
 import User from "./user.model.js";
 import Post from "./post.model.js";
 import Comment from "./comments.model.js";
+import Like from "./likes.model.js";
 
 User.hasMany(Post, {
   foreignKey: "userId",
-  sourceKey: "id",
   as: "posts"
 });
 
 Post.belongsTo(User, {
   foreignKey: "userId",
-  targetKey: "id",
   as: "author"
 });
 
 Comment.belongsTo(User,{
   foreignKey : "userId",
-  sourceKey : "id",
-  as : "comments"
+  as : "commentedBy"
 })
 User.hasMany(Comment,{
   foreignKey : "userId",
-  sourceKey : "id",
-  as : "comments"
+  as : "userComments"
 })
 
 Comment.belongsTo(Post,{
   foreignKey : "postId",
-  sourceKey : "id",
   as : "commentedPost"
 })
 Post.hasMany(Comment,{
   foreignKey : "postId",
-  sourceKey : "id",
-  as : "postcomments"
+  as : "postComments"
 })
 
 // USER ↔ POST through LIKE (M:N)
@@ -55,30 +49,25 @@ Post.belongsToMany(User, {
 // Reverse (direct) relations for Like table
 Like.belongsTo(User, {
   foreignKey: 'userId',
-  sourceKey :"id",
   as: 'likedBy' 
 });
 
 Like.belongsTo(Post, {
   foreignKey: 'postId',
-  sourceKey : "id",
   as: 'likedPost'
 });
 
 User.hasMany(Like, {
   foreignKey: 'userId',
-  sourceKey : "id",
   as: 'userLikes' 
 });
 
 Post.hasMany(Like, {
   foreignKey: 'postId',
-  sourceKey : "id",
   as: 'postLikes'
 });
 
-export {
-  RoleMaster,
+export default {
   User,
   Post,
   Comment,
