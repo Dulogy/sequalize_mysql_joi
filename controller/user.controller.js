@@ -7,6 +7,8 @@ import FormValidators from "../validators/user.validator.js";
 import Post from "../model/post.model.js";
 import Comment from "../model/comments.model.js";
 import Association from "../model/associations.js";
+import { sequelize } from "../config/mysql.db.js";
+import { Op } from "sequelize";
 class UserController {
   // user signup
   async signup(req, res) {
@@ -153,7 +155,38 @@ class UserController {
   }
 
   async multiplePostCreation(req,res) {
-    
+    try {
+      const postsData = JSON.parse(req.body.posts);
+      if(req.files && req.files.length > 0){
+        postsData.forEach((post,index) => {
+          if(req.files[index]){
+            post.imagePath = req.files[index].filename;
+          }
+        });
+      }
+      const {error} = FormValidators.createMultiplePostvalidator().validateAsync({posts:postsData})
+      if (error) {
+        return res.status(400).json({
+          success: false,
+          message: error.details[0].message,
+        });
+      }
+
+      // save all posts
+      const createdPosts = await Post.bulkCreate(postsData)
+      return res.status(201).json({
+        success: true,
+        message: "Posts created successfully",
+        data: createdPosts,
+      });
+    } catch (error) {
+      console.error("Login Error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
+    }
   }
   async createComment(req, res) {
     try {
@@ -194,6 +227,11 @@ class UserController {
       const userId = req.user.id;
       const postList = await Post.findAll({
         where : {userId : userId},
+        // where : {
+        //   userId :{
+        //     [Op.eq] : userId
+        //   }
+        // }
         include : [
           {
             model : Comment,
@@ -221,3 +259,21 @@ class UserController {
 
 // Export single instance (common pattern)
 export default new UserController();
+
+
+/*
+USER.findAll({
+  attributes : ['name',[sequelize.fn('COUNT',sequelize.col('id')),'countId']]
+})
+
+USER.findAll({
+  attributes : {
+  exclude : ['password']
+  })
+
+USER.findAll({
+  attributes : {
+  include : [[sequalize.fn('COUNT',sequalize.col('id')),'countIds']]
+  })
+
+*/

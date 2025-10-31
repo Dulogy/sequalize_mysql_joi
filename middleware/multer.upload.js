@@ -11,6 +11,7 @@ const storage = multer.diskStorage({
 })
 const upload = multer({ storage: storage })
 const uploadMiddleware = upload.single('image');
+const uploadMultipleImage = upload.array("image",10)
 
 
-export default { uploadMiddleware };
+export default { uploadMiddleware,uploadMultipleImage };

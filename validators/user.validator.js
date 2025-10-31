@@ -1,13 +1,13 @@
-import joi from "joi";
+import Joi from "joi";
 
 class FormValidators {
   loginValidator(){
-    return joi.object({
-      email: joi.string().email().required().messages({
+    return Joi.object({
+      email: Joi.string().email().required().messages({
         "string.email": "Invalid email format",
         "any.required": "Email is required",
       }),
-      password: joi.string().min(6).required().messages({
+      password: Joi.string().min(6).required().messages({
         "string.min": "Password must be at least 6 characters long",
         "any.required": "Password is required",
       }),
@@ -15,8 +15,8 @@ class FormValidators {
   }
 
   postValidator(){
-    return joi.object({
-      userId: joi.number()
+    return Joi.object({
+      userId: Joi.number()
         .integer()
         .required()
         .messages({
@@ -24,14 +24,14 @@ class FormValidators {
           "any.required": "User ID is required",
         }),
 
-      image: joi.any()
+      image: Joi.any()
         .optional()
         .allow(null, "")
         .messages({
           "any.only": "Invalid image format",
         }),
 
-      title: joi.string()
+      title: Joi.string()
         .min(3)
         .max(200)
         .required()
@@ -42,7 +42,7 @@ class FormValidators {
           "string.max": "Title must be less than 200 characters",
           "any.required": "Title is required",
         }),
-        content: joi.string()
+        content: Joi.string()
         .min(5)
         .required()
         .messages({
@@ -54,23 +54,60 @@ class FormValidators {
     })
   }
 
+  createMultiplePostvalidator(){
+    return Joi.object({
+      posts: Joi.array()
+        .items(
+          Joi.object({
+            userId: Joi.number().integer().required().messages({
+              "number.base": "User ID must be a number",
+              "any.required": "User ID is required",
+            }),
+            title: Joi.string().min(3).max(100).required().messages({
+              "string.base": "Title must be a string",
+              "string.empty": "Title cannot be empty",
+              "string.min": "Title must be at least 3 characters",
+              "string.max": "Title must be less than 100 characters",
+              "any.required": "Title is required",
+            }),
+            content: Joi.string().allow("").optional().messages({
+              "string.base": "Content must be text",
+            }),
+            imagePath: Joi.string().allow(null, "").optional(),
+          })
+        )
+        .min(1)
+        .required()
+        .messages({
+          "array.base": "Posts must be an array",
+          "array.min": "At least one post is required",
+        }),
+    });
+  }
+
   commentValidator(){
-    return joi.object({
-      userId : joi.number().integer().required().messages({
+    return Joi.object({
+      userId : Joi.number().integer().required().messages({
         "number.base": "User ID must be a number",
         "any.required": "User ID is required"
       }),
-      postId : joi.number().integer().required().messages({
+      postId : Joi.number().integer().required().messages({
         "number.base": "Post ID must be a number",
         "any.required": "Post ID is required"
       }),
-      comment : joi.string().required().min(3).max(100).messages({
+      comment : Joi.string().required().min(3).max(100).messages({
         "string.base": "Title must be a string",
         "string.empty": "Title cannot be empty",
         "string.min": "Title must be at least 3 characters",
         "string.max": "Title must be less than 200 characters",
         "any.required": "Title is required",
-      })
+      }),
+      content: Joi.string().allow("", null).messages({
+        "string.base": "Content must be a string",
+      }),
+      imagePath: Joi.string().allow("", null).messages({
+        "string.base": "Image path must be a string",
+      }),
     })
   }
 }
