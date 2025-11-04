@@ -9,7 +9,7 @@ router.post("/login",userController.login);
 router.post("/create-post",authMiddleware.auth,multerUpload.uploadMiddleware,userController.createPost);
 router.post("/create-bulk-post",authMiddleware.auth,multerUpload.uploadMultipleImage,userController.multiplePostCreation);
 router.post("/create-comment",authMiddleware.auth,userController.createComment);
-router.post("/like",authMiddleware.auth,userController.likePost);
+router.post("/post-like",authMiddleware.auth,userController.likePost);
 router.get("/post-list",authMiddleware.auth,userController.getPostList);
 
 export default router;

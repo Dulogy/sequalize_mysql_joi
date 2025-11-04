@@ -7,6 +7,14 @@ const Like = sequelize.define("Like", {
     primaryKey: true,
     autoIncrement: true
   },
+  isLikePost : {
+    type : DataTypes.BOOLEAN,
+    defaultValue : false
+  },
+  isDislikePost : {
+    type : DataTypes.BOOLEAN,
+    default : false
+  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false

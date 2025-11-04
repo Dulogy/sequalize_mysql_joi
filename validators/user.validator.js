@@ -110,6 +110,22 @@ class FormValidators {
       }),
     })
   }
+
+  likeValidator(){
+    return Joi.object({
+      userId : Joi.number().integer().required().messages({
+        "number.base": "User ID must be a number",
+        "any.required": "User ID is required"
+      }),
+      postId : Joi.number().integer().required().messages({
+        "number.base": "Post ID must be a number",
+        "any.required": "Post ID is required"
+      }),
+      isLike : Joi.boolean().required().messages({
+        "any.required": "isLike is required"
+      })
+    })
+  }
 }
 
 export default new FormValidators();

@@ -9,6 +9,7 @@ import Comment from "../model/comments.model.js";
 import Association from "../model/associations.js";
 import { sequelize } from "../config/mysql.db.js";
 import { Op } from "sequelize";
+import Like from "../model/likes.model.js";
 class UserController {
   // user signup
   async signup(req, res) {
@@ -201,7 +202,7 @@ class UserController {
         return res.status(400).json({
           success: false,
           message: "Something went wrong.",
-          result: [],
+          error : result.error.details[0].message
         });
       }
       const newComment = await Comment.create({ userId,postId,comment });
@@ -220,25 +221,104 @@ class UserController {
     }
   }
 
-  async likePost(req, res) {}
+  async likePost(req, res) {
+    try {
+      const {postId,isLike} = req.body;
+      console.log(isLike);
+      const userId = req.user.id;
+      const result = await FormValidators.likeValidator().validateAsync({postId,userId,isLike})
+      if(result.error){
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong.",
+          result: [],
+        });
+      }
+      if(isLike){
+        console.log("hello");
+        const [likedPost,created] = await Like.upsert(
+          {userId,postId,isLikePost : true,isDislikePost : false}
+        )
+        return res.status(201).json({
+          success: true,
+          message: "Post liked",
+          data: likedPost,
+        });
+      }
+      const unlikePost = await Like.upsert(
+        {
+          isLikePost : false,
+          isDislikePost : true,
+          userId : userId,
+          postId : postId
+        },
+        {
+          where : {
+            [Op.and] :[
+              {postId : postId},
+              {userId : userId}
+            ]
+            
+          }
+        }
+      );
+      return res.status(201).json({
+        success: true,
+        message: "Post Dislike",
+        data: unlikePost,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  }
 
   async getPostList(req,res){
     try {
       const userId = req.user.id;
       const postList = await Post.findAll({
-        where : {userId : userId},
-        // where : {
-        //   userId :{
-        //     [Op.eq] : userId
-        //   }
-        // }
-        include : [
+        where: {
+          userId: {
+            [Op.eq]: userId,
+          },
+        },
+        include: [
           {
-            model : Comment,
-            as : "postComments",
-            attributes : ["comment","userId","createdAt"]
-          }
-        ]
+            model: Comment,
+            as: "postComments",
+            attributes: ["comment", "userId", "createdAt"],
+            include : [
+              {
+                model : User,
+                as : "commentedBy",
+                attributes : ["email","firstName"]
+              }
+            ]
+          },
+          {
+            model: Like,
+            as: "postLikes",
+            attributes: [],
+          },
+        ],
+        attributes: ["id","title","content",
+          [
+            sequelize.literal(
+              `SUM(CASE WHEN postLikes.isLikePost = true THEN 1 ELSE 0 END)`
+            ),
+            "likesCount",
+          ],
+          [
+            sequelize.literal(
+              `SUM(CASE WHEN postLikes.isDislikePost = true THEN 1 ELSE 0 END)`
+            ),
+            "dislikesCount",
+          ],
+        ],
+        group: ["Post.id","postComments.id","postComments->commentedBy.id"],
       });
 
       return res.status(201).json({
