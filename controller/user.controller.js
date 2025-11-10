@@ -8,7 +8,7 @@ import Post from "../model/post.model.js";
 import Comment from "../model/comments.model.js";
 import Association from "../model/associations.js";
 import { sequelize } from "../config/mysql.db.js";
-import { Op } from "sequelize";
+import { NUMBER, Op } from "sequelize";
 import Like from "../model/likes.model.js";
 class UserController {
   // user signup
@@ -279,6 +279,12 @@ class UserController {
   async getPostList(req,res){
     try {
       const userId = req.user.id;
+      console.log(req.body);
+      const { page,limit} = req.body;
+      console.log(page,limit);
+      let PAGE = (page || 1);
+      let LIMIT = (limit || 10);
+      let OFFSET = (PAGE -1) * LIMIT;
       const postList = await Post.findAll({
         where: {
           userId: {
@@ -319,6 +325,9 @@ class UserController {
           ],
         ],
         group: ["Post.id","postComments.id","postComments->commentedBy.id"],
+        limit : LIMIT,
+        offset : OFFSET,
+        subQuery : false
       });
 
       return res.status(201).json({

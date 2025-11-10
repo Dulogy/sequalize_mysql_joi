@@ -10,6 +10,6 @@ router.post("/create-post",authMiddleware.auth,multerUpload.uploadMiddleware,use
 router.post("/create-bulk-post",authMiddleware.auth,multerUpload.uploadMultipleImage,userController.multiplePostCreation);
 router.post("/create-comment",authMiddleware.auth,userController.createComment);
 router.post("/post-like",authMiddleware.auth,userController.likePost);
-router.get("/post-list",authMiddleware.auth,userController.getPostList);
+router.post("/post-list",authMiddleware.auth,userController.getPostList);
 
 export default router;
