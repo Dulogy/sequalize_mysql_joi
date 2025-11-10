@@ -296,13 +296,13 @@ class UserController {
             model: Comment,
             as: "postComments",
             attributes: ["comment", "userId", "createdAt"],
-            include : [
+            include: [
               {
-                model : User,
-                as : "commentedBy",
-                attributes : ["email","firstName"]
-              }
-            ]
+                model: User,
+                as: "commentedBy",
+                attributes: ["email", "firstName"],
+              },
+            ],
           },
           {
             model: Like,
@@ -310,24 +310,34 @@ class UserController {
             attributes: [],
           },
         ],
-        attributes: ["id","title","content",
+        attributes: [
+          "id",
+          "title",
+          "content",
           [
-            sequelize.literal(
-              `SUM(CASE WHEN postLikes.isLikePost = true THEN 1 ELSE 0 END)`
-            ),
+            sequelize.literal(`
+                (SELECT COUNT(*) 
+                FROM likes 
+                WHERE likes.postId = Post.id 
+                AND likes.isLikePost = TRUE)
+              `),
             "likesCount",
           ],
           [
-            sequelize.literal(
-              `SUM(CASE WHEN postLikes.isDislikePost = true THEN 1 ELSE 0 END)`
-            ),
+            sequelize.literal(`
+                (SELECT COUNT(*) 
+                FROM likes 
+                WHERE likes.postId = Post.id 
+                AND likes.isDislikePost = TRUE)
+              `),
             "dislikesCount",
           ],
         ],
-        group: ["Post.id","postComments.id","postComments->commentedBy.id"],
-        limit : LIMIT,
-        offset : OFFSET,
-        subQuery : false
+        // group: ["Post.id","postComments.id","postComments->commentedBy.id"],
+        limit: LIMIT,
+        offset: OFFSET,
+        subQuery: false,
+        order: [["createdAt", "DESC"]],
       });
 
       return res.status(201).json({
